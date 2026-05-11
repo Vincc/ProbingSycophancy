@@ -41,7 +41,7 @@ class EvalModel():
         model.eval()
         return model
 
-    def apply_chat_template(self, chat_messages, prefilled):
+    def apply_chat_template(self, chat_messages, assistant):
         """
         Returns a tokenized batch of chat_messages (which should be in chat template format).
         """
@@ -49,11 +49,9 @@ class EvalModel():
             return self.tokenizer.apply_chat_template(
                 chat_messages,
                 tokenize=True,
-                padding="longest",
                 return_tensors="pt",
                 return_dict=True,
-                continue_final_message=True if prefilled else False,
-                add_generation_prompt=False if prefilled else True,
+                add_generation_prompt=False if assistant else True,
             )
         else:
             raise Exception("No chat template found.")
@@ -62,7 +60,7 @@ class EvalModel():
     def run_inference(
         self,
         chat_prompts,
-        prefilled,
+        assistant,
         output_scores=False,
         decode_output=True,
         output_full_chat=False,
@@ -72,7 +70,7 @@ class EvalModel():
         Generates model responses to the given chat_prompts and returns this response.
 
         Prameters:
-        - `prefilled` - If true, model will continue generating from the last message in the chat. 
+        - `assistant` - If true, model will continue generating from the last message in the chat. 
           Otherwise, the model will respond to the last message in the chat.
         - `output_scores` - If true, pre-softmax prediction scores will be returned instead of output tokens.
           Note that this is incompatible with both `decode_output=True` and `output_full_chat`=True since decoding
@@ -86,7 +84,8 @@ class EvalModel():
         if output_scores and output_full_chat:
             raise ValueError("Incompatible args: `output_full_chat` and `output_scores` cannot both be true.")
         
-        inputs = self.apply_chat_template(chat_prompts, prefilled)
+        inputs = self.apply_chat_template(chat_prompts, assistant)
+        
         inputs = {k: v.to(self.device) for k, v in inputs.items()}  # move to device
 
         output_dict = self.model.generate(
