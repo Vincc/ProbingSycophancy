@@ -1,2 +1,4 @@
 .claude
+.venv/
+.github/
 __pycache__

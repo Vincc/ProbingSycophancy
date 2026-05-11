@@ -1,0 +1,19 @@
+# configs/models/tinyllama_1b.yaml
+
+model_id: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+num_layers: 22
+num_heads: 32
+head_dim: 64        # hidden_size / num_heads = 2048 / 32
+hidden_dim: 2048
+intermediate_dim: 5632
+
+# HuggingFace module paths (Llama architecture)
+layer_path: "model.layers"
+attn_module: "self_attn.o_proj"
+mlp_module: "mlp"
+
+# Test config — hook a few middle layers
+default_layer_range: [10, 21]
+
+dtype: "float32"    # no GPU, run on CPU
+device: "cpu"

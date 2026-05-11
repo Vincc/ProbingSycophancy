@@ -63,7 +63,7 @@ class EvalModel():
             dtype=self.dtype
         )
         model.eval()
-        return model
+        return modelx
 
     def apply_chat_template(self, chat_messages, assistant):
         """
