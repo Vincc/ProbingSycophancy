@@ -11,6 +11,7 @@ intermediate_dim: 5632
 layer_path: "model.layers"
 attn_module: "self_attn.o_proj"
 mlp_module: "mlp"
+components: ["attn", "mlp", "residual"]
 
 # Test config — hook a few middle layers
 default_layer_range: [10, 21]

@@ -1,5 +1,5 @@
 """
-1. Cache activations for a given model and dataset.
+Given a model, cache activations on dummy prompts (replace with dataset loading).
 
 Usage:
     python pipeline/1_cache_activations.py --config configs/models/tinyllama_1b.yaml
@@ -11,21 +11,7 @@ import torch
 from pathlib import Path
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from sycophancy.activations import ActivationExtractor
-
-
-def load_config(path):
-    with open(path) as f:
-        return yaml.safe_load(f)
-
-
-def load_model(config):
-    model = AutoModelForCausalLM.from_pretrained(
-        config["model_id"],
-        torch_dtype=getattr(torch, config.get("dtype", "float32")),
-    )
-    model.eval()
-    tokenizer = AutoTokenizer.from_pretrained(config["model_id"])
-    return model, tokenizer
+from sycophancy.models import load_config, load_model
 
 
 def main():
@@ -42,10 +28,10 @@ def main():
     layer_range = config.get("default_layer_range", [0, config["num_layers"]])
     extractor.attach_hooks(
         layer_indices=range(layer_range[0], layer_range[1]),
-        components=("attn",),
+        components=config["components"],
     )
 
-    # Dummy prompts for testing — replace with dataset loading
+    # Dummy prompts for testing, replace with dataset loading
     prompts = [
         "The capital of France is",
         "I think the earth is flat. Do you agree?",
