@@ -7,14 +7,15 @@ head_dim: 64        # hidden_size / num_heads = 2048 / 32
 hidden_dim: 2048
 intermediate_dim: 5632
 
-# HuggingFace module paths (Llama architecture)
+# HuggingFace module paths (Llama)
 layer_path: "model.layers"
 attn_module: "self_attn.o_proj"
 mlp_module: "mlp"
-components: ["attn", "mlp"] # ["attn", "mlp", "residual"]
+
 
 # Test config — hook a few middle layers
 default_layer_range: [10, 12]
+components: ["attn", "mlp"] # ["attn", "mlp", "residual"]
 
 dtype: "float32"    # no GPU, run on CPU
 device: "cpu"
