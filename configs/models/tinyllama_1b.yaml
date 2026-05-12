@@ -11,10 +11,10 @@ intermediate_dim: 5632
 layer_path: "model.layers"
 attn_module: "self_attn.o_proj"
 mlp_module: "mlp"
-components: ["attn", "mlp", "residual"]
+components: ["attn", "mlp"] # ["attn", "mlp", "residual"]
 
 # Test config — hook a few middle layers
-default_layer_range: [10, 21]
+default_layer_range: [10, 12]
 
 dtype: "float32"    # no GPU, run on CPU
 device: "cpu"

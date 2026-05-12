@@ -1,11 +1,10 @@
-"""1.2 Extract hooks.py — Model-agnostic activation caching
-Input: Model, hook config (layer indices, hook type: "pre" or "post"), hook_fn callback
-Logic:
-Attach forward pre/post hooks to specified layers (attn output projection or MLP output)
-Cache activations into a dict keyed by layer index
-Reshape attention head outputs: (batch, hidden_dim) → (batch, num_heads, head_dim)
-Output: Cached activations dict + hook handle for cleanup
-Tests: Verify hook shape matches layer structure; test on 1-2 models as sanity check"""
+"""
+Given Model, hook config (layer indices, hook type: "pre" or "post"), 
+attach hooks to specified layers (in config). Cache activations into 
+dict keyed by layer index. Each key:value pair will have a corresponding
+probe trained. Output: Cached activations dict + hook handle for cleanup
+
+"""
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -23,7 +22,7 @@ class ActivationExtractor:
         
     def _get_layers(self):
         """
-        Resolve layer path dynamically, 
+        Resolve layer path dynamically
         """
         module = self.model
         for attr in self.config["layer_path"].split("."):
@@ -42,13 +41,20 @@ class ActivationExtractor:
         handle = module.register_forward_hook(hook_fn)
         self.handles.append(handle)
 
+    def _register_hook_pre(self, module, layer_idx, component):
+        def hook_fn(module, input):
+            self.cache[(layer_idx, component)] = input[0].detach()
+
+        handle = module.register_forward_pre_hook(hook_fn)
+        self.handles.append(handle)
+        
     def attach_hooks(self, layer_indices, components=("attn", "mlp", "residual")):
         layers = self._get_layers()
         for idx in layer_indices:
             layer = layers[idx]
             if "attn" in components:
                 module = self._resolve_path(layer, self.config["attn_module"])
-                self._register_hook(module, idx, "attn")
+                self._register_hook_pre(module, idx, "attn")
             if "mlp" in components:
                 module = self._resolve_path(layer, self.config["mlp_module"])
                 self._register_hook(module, idx, "mlp")

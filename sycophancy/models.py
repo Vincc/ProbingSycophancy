@@ -36,7 +36,6 @@ def load_config(model_name):
     with open(path) as f:
         return yaml.safe_load(f)
 
-
 def load_model(config):
     """Load model and tokenizer from a config dict.
     
