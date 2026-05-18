@@ -44,7 +44,6 @@ def load_model(config):
     """
     dtype = getattr(torch, config.get("dtype", "float32"))
     device = config.get("device", "auto")
-
     model = AutoModelForCausalLM.from_pretrained(
         config["model_id"],
         torch_dtype=dtype,

@@ -8,6 +8,7 @@ probe trained. Output: Cached activations dict + hook handle for cleanup
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import gc
 
 class ActivationExtractor:
     def __init__(self, model, tokenizer, config, ):
@@ -36,7 +37,7 @@ class ActivationExtractor:
 
     def _register_hook(self, module, layer_idx, component):
         def hook_fn(module, input, output):
-            self.cache[(layer_idx, component)] = output.detach()
+            self.cache[(layer_idx, component)] = output.cpu().detach()
 
         handle = module.register_forward_hook(hook_fn)
         self.handles.append(handle)
@@ -86,6 +87,11 @@ class ActivationExtractor:
                 all_activations[key].append(value.cpu())
 
             self.cache.clear()
+
+            del activation
+            gc.collect()
+            torch.cuda.empty_cache()
+
 
         return {k: torch.stack(v) for k, v in all_activations.items()}
 
