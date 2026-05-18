@@ -16,6 +16,7 @@ mlp_module: "mlp"
 # Test config — hook a few middle layers
 default_layer_range: [10, 12]
 components: ["attn", "mlp"] # ["attn", "mlp", "residual"]
+temperature: 0
 
 dtype: "float32"    # no GPU, run on CPU
 device: "cpu"
