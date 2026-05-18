@@ -37,6 +37,9 @@ class ActivationExtractor:
 
     def _register_hook(self, module, layer_idx, component):
         def hook_fn(module, input, output):
+            if isinstance(output, tuple):
+                output = output[0]
+            
             self.cache[(layer_idx, component)] = output.cpu().detach()
 
         handle = module.register_forward_hook(hook_fn)
@@ -44,7 +47,9 @@ class ActivationExtractor:
 
     def _register_hook_pre(self, module, layer_idx, component):
         def hook_fn(module, input):
-            self.cache[(layer_idx, component)] = input[0].detach()
+            if input.isinstance(input, tuple):
+                input = input[0]
+            self.cache[(layer_idx, component)] = input.detach()
 
         handle = module.register_forward_pre_hook(hook_fn)
         self.handles.append(handle)
