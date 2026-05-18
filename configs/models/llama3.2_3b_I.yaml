@@ -1,11 +1,12 @@
-# configs/models/tinyllama_1b.yaml
+#google/gemma-3-4b-it param meodel
 
-model_id: "google/gemma-3-4b-it"
-num_layers: 34
-num_heads: 22
-head_dim: 2        # hidden_size / num_heads = 2048 / 32
-hidden_dim: 2048
-intermediate_dim: 5632
+
+model_id: "meta-llama/Llama-3.2-3B-Instruct"
+num_layers: 28
+num_heads: 24
+head_dim: 128        # hidden_size / num_heads = 2048 / 32
+hidden_dim: 3072
+intermediate_dim: 8192
 
 # HuggingFace module paths (Llama)
 layer_path: "model.layers"
