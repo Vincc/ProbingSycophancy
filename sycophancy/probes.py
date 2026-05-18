@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam
 
-
 def train_probe(activations, labels, lr=1e-3, epochs=100):
     """Train a single linear probe. Returns (probe, metrics)."""
     probe_dim = activations.shape[1]
