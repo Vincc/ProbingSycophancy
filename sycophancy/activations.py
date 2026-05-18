@@ -104,3 +104,5 @@ class ActivationExtractor:
         # removes hooks
         for h in self.handles:
             h.remove()
+            
+        self.handles.clear()
