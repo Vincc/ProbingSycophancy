@@ -47,7 +47,7 @@ class ActivationExtractor:
 
     def _register_hook_pre(self, module, layer_idx, component):
         def hook_fn(module, input):
-            if input.isinstance(input, tuple):
+            if isinstance(input, tuple):
                 input = input[0]
             self.cache[(layer_idx, component)] = input.detach()
 
