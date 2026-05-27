@@ -8,7 +8,7 @@ hidden_dim: 2048
 intermediate_dim: 5632
 
 # HuggingFace module paths (Llama)
-layer_path: "model.model.layers"
+layer_path: "model.layers"
 attn_module: "self_attn.o_proj"
 mlp_module: "mlp"
 
