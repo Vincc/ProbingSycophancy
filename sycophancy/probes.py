@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.optim import Adam
+import os
 
 def train_probe(activations, labels, lr=1e-3, epochs=100):
     """Train a single linear probe. Returns (probe, metrics)."""
@@ -69,4 +70,32 @@ def train_all_probes(activations_dict, labels, seed = 42):
             key = (layer_idx, component)
             results[key] = train_probe(acts, labels)
 
+    return results
+
+def save_probes(results, path):
+    os.makedirs(path, exist_ok=True)
+    for key, (probe, metrics) in results.items():
+        # key is (layer, component) or (layer, component, head)
+        filename = "_".join(str(k) for k in key) + ".pt"
+        torch.save({
+            "state_dict": probe.state_dict(),
+            "metrics": metrics,
+            "key": key,
+        }, os.path.join(path, filename))
+
+
+def load_probes(path):
+    results = {}
+    for filename in os.listdir(path):
+        if not filename.endswith(".pt"):
+            continue
+        data = torch.load(os.path.join(path, filename))
+        key = data["key"]
+        metrics = data["metrics"]
+
+        probe_dim = data["state_dict"]["weight"].shape[1]
+        probe = nn.Linear(probe_dim, 1)
+        probe.load_state_dict(data["state_dict"])
+
+        results[key] = (probe, metrics)
     return results

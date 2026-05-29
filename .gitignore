@@ -2,4 +2,5 @@
 .venv/
 .github/
 outputs/
+notebooks/
 __pycache__
