@@ -9,10 +9,12 @@ class EvalModel():
         model_id: str,
         device: str = "cuda" if torch.cuda.is_available() else "cpu",
         dtype = torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+        hf_token: str = None,
     ):
         self.model_id = model_id
         self.device = device
         self.dtype = dtype
+        self.hf_token = hf_token
 
         self.tokenizer = self._load_tokenizer()
         self.model = self._load_model()
@@ -23,32 +25,32 @@ class EvalModel():
             print("Warning: running model on CPU, model params will be loaded in float32 precision.")
             print("For consistent evaluation results, run on CUDA device with bfloat16 support.")
 
-        if "gemma" and "2" in self.model_id:
+        if "gemma" in self.model_id and "2" in self.model_id:
             self.hidden_layers = self.model.config.num_hidden_layers
             self.hidden_dim = self.model.config.hidden_size
             self.num_heads = self.model.config.num_attention_heads
             self.head_dim = self.model.config.head_dim
 
-        elif "gemma" and "3" in self.model_id:
+        elif "gemma" in self.model_id and "3" in self.model_id:
             self.hidden_layers = self.model.config.text_config.num_hidden_layers
             self.hidden_dim = self.model.config.text_config.hidden_size
             self.num_heads = self.model.config.text_config.num_attention_heads
             self.head_dim = self.model.config.text_config.head_dim
 
-        elif "llama" and "3" in self.model_id:
+        elif "llama" in self.model_id and "3" in self.model_id:
             self.hidden_layers = self.model.config.num_hidden_layers
             self.hidden_dim = self.model.config.hidden_size
             self.num_heads = self.model.config.num_attention_heads
             self.head_dim = self.model.config.head_dim
 
-        elif "qwen" and "2.5" in self.model_id:
+        elif "qwen" in self.model_id and "2.5" in self.model_id:
             self.hidden_layers = self.model.config.num_hidden_layers
-            self.hidden_dim = self.model.hidden_size
+            self.hidden_dim = self.model.config.hidden_size
             self.num_heads = self.model.config.num_attention_heads
-            self.head_dim = blank
+            self.head_dim = self.model.config.hidden_size // self.model.config.num_attention_heads
 
     def _load_tokenizer(self):
-        tokenizer = AutoTokenizer.from_pretrained(self.model_id)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_id, token=self.hf_token)
 
         if tokenizer.pad_token is None:
             print(f"Tokenizer for {self} has no pad_token, using eos_token instead.")
@@ -60,10 +62,11 @@ class EvalModel():
     def _load_model(self):
         model = AutoModelForCausalLM.from_pretrained(
             self.model_id,
-            dtype=self.dtype
+            torch_dtype=self.dtype,
+            token=self.hf_token,
         )
         model.eval()
-        return modelx
+        return model
 
     def apply_chat_template(self, chat_messages, assistant):
         """

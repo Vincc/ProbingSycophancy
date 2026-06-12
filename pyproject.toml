@@ -11,6 +11,8 @@ dependencies = [
     "scikit-learn",
     "tqdm",
     "pyyaml",
+    "datasets",
+    "anthropic",
 ]
 
 [build-system]
